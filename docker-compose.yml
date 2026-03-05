@@ -19,7 +19,7 @@ services:
       - staffing-network
 
   backend:
-    image: ghcr.io/bacheloraccenture/datadrivenstaff-backend:latest
+    image: ghcr.io/bacheloraccenture/datadrevet_staffing_api:sha-21938d2
     container_name: staffing-backend
     ports:
       - "8080:8080"
@@ -34,7 +34,7 @@ services:
       - staffing-network
 
   frontend:
-    image: ghcr.io/bacheloraccenture/datadrivenstaff-frontend:latest
+    image: ghcr.io/bacheloraccenture/datadrevet_staffing_web:sha-5a00636
     container_name: staffing-frontend
     ports:
       - "3000:80"
