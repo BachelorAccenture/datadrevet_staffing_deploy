@@ -1,0 +1,52 @@
+services:
+  neo4j:
+    image: neo4j:5
+    container_name: staffing-neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD:-staffing123}
+    volumes:
+      - neo4j-data:/data
+      - neo4j-logs:/logs
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p ${NEO4J_PASSWORD:-staffing123} 'RETURN 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - staffing-network
+
+  backend:
+    image: ghcr.io/bacheloraccenture/datadrivenstaff-backend:latest
+    container_name: staffing-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD:-staffing123}
+    depends_on:
+      neo4j:
+        condition: service_healthy
+    networks:
+      - staffing-network
+
+  frontend:
+    image: ghcr.io/bacheloraccenture/datadrivenstaff-frontend:latest
+    container_name: staffing-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - staffing-network
+
+volumes:
+  neo4j-data:
+  neo4j-logs:
+
+networks:
+  staffing-network:
+    driver: bridge
